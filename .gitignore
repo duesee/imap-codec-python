@@ -1,0 +1,6 @@
+target
+.idea
+
+# direnv (https://direnv.net/)
+.envrc
+.direnv
