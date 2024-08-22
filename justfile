@@ -80,15 +80,15 @@ bindings_python: install_python_black install_python_maturin install_python_mypy
     # Remove any old wheels
     rm -rf target/wheels/*
     # Lint Python code using Black and Ruff
-    python -m black --check bindings/imap-codec-python
-    python -m ruff check bindings/imap-codec-python
+    python -m black --check .
+    python -m ruff check
     # Build Python extension
-    cd bindings/imap-codec-python; maturin build --release
+    maturin build --release
     # Install extension and run unit tests
     pip install --force-reinstall --find-links=target/wheels/ imap_codec
-    cd bindings/imap-codec-python; python -m unittest -v
+    python -m unittest -v
     # Perform static type checking using mypy
-    python -m mypy bindings/imap-codec-python
+    python -m mypy .
 
 ###############
 ### INSTALL ###

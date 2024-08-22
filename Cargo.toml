@@ -1,5 +1,34 @@
-[workspace]
-resolver = "2"
-members = [
-    "bindings/imap-codec-python",
+[package]
+name = "imap-codec-python"
+description = "Python bindings for imap-codec Rust crate"
+keywords = ["email", "imap", "codec", "parser"]
+version = "0.1.0"
+authors = [
+    "Damian Poddebniak <poddebniak@mailbox.org>",
+    "Henning Holm <git@henningholm.de>",
+]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "imap_codec"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.22.2"
+serde-pyobject = "0.4.0"
+
+[dependencies.imap-codec]
+version = "2.0.0-alpha.4"
+features = [
+    "serde",
+    "quirk_crlf_relaxed",
+    "starttls",
+    #"ext_condstore_qresync",
+    "ext_id",
+    #"ext_login_referrals",
+    #"ext_mailbox_referrals",
+    "ext_metadata",
 ]
