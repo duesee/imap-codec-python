@@ -15,15 +15,13 @@ publish = false
 [lib]
 name = "imap_codec"
 crate-type = ["cdylib"]
-# required as this lib name is identical to `imap-codec`
-doc = false
 
 [dependencies]
 pyo3 = "0.22.2"
 serde-pyobject = "0.4.0"
 
 [dependencies.imap-codec]
-path = "../../imap-codec"
+version = "2.0.0-alpha.4"
 features = [
     "serde",
     "quirk_crlf_relaxed",
