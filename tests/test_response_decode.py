@@ -13,13 +13,23 @@ class TestResponseDecode(unittest.TestCase):
     def test_response(self):
         buffer = b"* SEARCH 1\r\n<remaining>"
         remaining, response = ResponseCodec.decode(buffer)
-        self.assertEqual(response, Response.from_dict({"Data": {"Search": [1]}}))
+        self.assertEqual(
+            response,
+            Response.from_dict(
+                {"type": "Data", "data": {"type": "Search", "data": [1]}}
+            ),
+        )
         self.assertEqual(remaining, b"<remaining>")
 
     def test_response_without_remaining(self):
         buffer = b"* SEARCH 1\r\n"
         remaining, response = ResponseCodec.decode(buffer)
-        self.assertEqual(response, Response.from_dict({"Data": {"Search": [1]}}))
+        self.assertEqual(
+            response,
+            Response.from_dict(
+                {"type": "Data", "data": {"type": "Search", "data": [1]}}
+            ),
+        )
         self.assertEqual(remaining, b"")
 
     def test_response_error_incomplete(self):

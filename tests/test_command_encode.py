@@ -12,14 +12,14 @@ from imap_codec import (
 
 class TestCommandEncode(unittest.TestCase):
     def test_simple_command(self):
-        command = Command.from_dict({"tag": "a", "body": "Noop"})
+        command = Command.from_dict({"tag": "a", "body": {"type": "Noop"}})
         encoded = CommandCodec.encode(command)
         self.assertIsInstance(encoded, Encoded)
         fragments = list(encoded)
         self.assertEqual(fragments, [LineFragment(b"a NOOP\r\n")])
 
     def test_simple_command_dump(self):
-        command = Command.from_dict({"tag": "a", "body": "Noop"})
+        command = Command.from_dict({"tag": "a", "body": {"type": "Noop"}})
         encoded = CommandCodec.encode(command)
         self.assertIsInstance(encoded, Encoded)
         self.assertEqual(encoded.dump(), b"a NOOP\r\n")
@@ -28,14 +28,20 @@ class TestCommandEncode(unittest.TestCase):
         {
             "tag": "A",
             "body": {
-                "Login": {
-                    "username": {"Atom": "alice"},
+                "type": "Login",
+                "data": {
+                    "username": {"type": "Atom", "data": "alice"},
                     "password": {
-                        "String": {
-                            "Literal": {"data": list(b"\xCA\xFE"), "mode": "Sync"}
-                        }
+                        "type": "String",
+                        "data": {
+                            "type": "Literal",
+                            "data": {
+                                "data": list(b"\xCA\xFE"),
+                                "mode": {"type": "Sync"},
+                            },
+                        },
                     },
-                }
+                },
             },
         }
     )

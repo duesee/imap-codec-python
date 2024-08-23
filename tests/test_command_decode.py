@@ -13,13 +13,17 @@ class TestCommandDecode(unittest.TestCase):
     def test_command(self):
         buffer = b"a NOOP\r\n<remaining>"
         remaining, command = CommandCodec.decode(buffer)
-        self.assertEqual(command, Command.from_dict({"tag": "a", "body": "Noop"}))
+        self.assertEqual(
+            command, Command.from_dict({"tag": "a", "body": {"type": "Noop"}})
+        )
         self.assertEqual(remaining, b"<remaining>")
 
     def test_command_without_remaining(self):
         buffer = b"a NOOP\r\n"
         remaining, command = CommandCodec.decode(buffer)
-        self.assertEqual(command, Command.from_dict({"tag": "a", "body": "Noop"}))
+        self.assertEqual(
+            command, Command.from_dict({"tag": "a", "body": {"type": "Noop"}})
+        )
         self.assertEqual(remaining, b"")
 
     def test_command_error_incomplete(self):
@@ -32,7 +36,9 @@ class TestCommandDecode(unittest.TestCase):
         buffer = b"a SELECT {5}\r\n"
         with self.assertRaises(DecodeLiteralFound) as cm:
             CommandCodec.decode(buffer)
-        self.assertEqual(str(cm.exception), "{'tag': 'a', 'length': 5, 'mode': 'Sync'}")
+        self.assertEqual(
+            str(cm.exception), "{'tag': 'a', 'length': 5, 'mode': {'type': 'Sync'}}"
+        )
 
     def test_command_error_failed(self):
         buffer = b"* NOOP"

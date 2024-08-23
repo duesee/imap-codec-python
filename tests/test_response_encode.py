@@ -12,38 +12,46 @@ from imap_codec import (
 
 class TestResponseEncode(unittest.TestCase):
     def test_simple_response(self):
-        response = Response.from_dict({"Data": {"Search": [1]}})
+        response = Response.from_dict(
+            {"type": "Data", "data": {"type": "Search", "data": [1]}}
+        )
         encoded = ResponseCodec.encode(response)
         self.assertIsInstance(encoded, Encoded)
         fragments = list(encoded)
         self.assertEqual(fragments, [LineFragment(b"* SEARCH 1\r\n")])
 
     def test_simple_response_dump(self):
-        response = Response.from_dict({"Data": {"Search": [1]}})
+        response = Response.from_dict(
+            {"type": "Data", "data": {"type": "Search", "data": [1]}}
+        )
         encoded = ResponseCodec.encode(response)
         self.assertIsInstance(encoded, Encoded)
         self.assertEqual(encoded.dump(), b"* SEARCH 1\r\n")
 
     _MULTI_FRAGMENT_RESPONSE = Response.from_dict(
         {
-            "Data": {
-                "Fetch": {
+            "type": "Data",
+            "data": {
+                "type": "Fetch",
+                "data": {
                     "seq": 12345,
                     "items": [
                         {
-                            "BodyExt": {
+                            "type": "BodyExt",
+                            "data": {
                                 "section": None,
                                 "origin": None,
                                 "data": {
-                                    "Literal": {
+                                    "type": "Literal",
+                                    "data": {
                                         "data": list(b"ABCDE"),
-                                        "mode": "NonSync",
-                                    }
+                                        "mode": {"type": "NonSync"},
+                                    },
                                 },
-                            }
+                            },
                         }
                     ],
-                }
+                },
             },
         }
     )

@@ -22,6 +22,8 @@ serde-pyobject = "0.4.0"
 
 [dependencies.imap-codec]
 version = "2.0.0-alpha.4"
+git = "https://github.com/HenningHolmDE/imap-codec"
+branch = "enum_representations"
 features = [
     "serde",
     "quirk_crlf_relaxed",

@@ -7,13 +7,19 @@ class TestGreeting(unittest.TestCase):
     def test_from_dict(self):
         self.assertIsInstance(
             Greeting.from_dict(
-                {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
+                {
+                    "code": {"type": "Alert"},
+                    "kind": {"type": "Ok"},
+                    "text": "Hello, World!",
+                }
             ),
             Greeting,
         )
 
         self.assertIsInstance(
-            Greeting.from_dict({"code": None, "kind": "Ok", "text": "Hello, World!"}),
+            Greeting.from_dict(
+                {"code": None, "kind": {"type": "Ok"}, "text": "Hello, World!"}
+            ),
             Greeting,
         )
 
@@ -22,100 +28,118 @@ class TestGreeting(unittest.TestCase):
         self.assertEqual(str(cm.exception), "missing field `kind`")
 
     def test_as_dict(self):
-        dictionary = {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
+        dictionary = {
+            "code": {"type": "Alert"},
+            "kind": {"type": "Ok"},
+            "text": "Hello, World!",
+        }
         self.assertEqual(Greeting.from_dict(dictionary).as_dict(), dictionary)
 
-        dictionary = {"code": None, "kind": "Ok", "text": "Hello, World!"}
+        dictionary = {"code": None, "kind": {"type": "Ok"}, "text": "Hello, World!"}
         self.assertEqual(Greeting.from_dict(dictionary).as_dict(), dictionary)
 
         self.assertEqual(
-            Greeting.from_dict({"kind": "Ok", "text": "Hello, World!"}).as_dict(),
-            {"code": None, "kind": "Ok", "text": "Hello, World!"},
+            Greeting.from_dict(
+                {"kind": {"type": "Ok"}, "text": "Hello, World!"}
+            ).as_dict(),
+            {"code": None, "kind": {"type": "Ok"}, "text": "Hello, World!"},
         )
 
     def test_repr(self):
         self.assertEqual(
             repr(
                 Greeting.from_dict(
-                    {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
+                    {
+                        "code": {"type": "Alert"},
+                        "kind": {"type": "Ok"},
+                        "text": "Hello, World!",
+                    }
                 )
             ),
-            "Greeting({'kind': 'Ok', 'code': 'Alert', 'text': 'Hello, World!'})",
+            r"Greeting({'kind': {'type': 'Ok'}, 'code': {'type': 'Alert'}, 'text': 'Hello, World!'})",
         )
 
         self.assertEqual(
-            repr(Greeting.from_dict({"kind": "Ok", "text": "Hello, World!"})),
-            "Greeting({'kind': 'Ok', 'code': None, 'text': 'Hello, World!'})",
+            repr(Greeting.from_dict({"kind": {"type": "Ok"}, "text": "Hello, World!"})),
+            r"Greeting({'kind': {'type': 'Ok'}, 'code': None, 'text': 'Hello, World!'})",
         )
 
 
 class TestCommand(unittest.TestCase):
     def test_from_dict(self):
         self.assertIsInstance(
-            Command.from_dict({"tag": "a", "body": "Noop"}),
+            Command.from_dict({"tag": "a", "body": {"type": "Noop"}}),
             Command,
         )
 
         with self.assertRaises(RuntimeError) as cm:
-            Command.from_dict({"body": "Noop"})
+            Command.from_dict({"body": {"type": "Noop"}})
         self.assertEqual(str(cm.exception), "missing field `tag`")
 
     def test_as_dict(self):
-        dictionary = {"tag": "a", "body": "Noop"}
+        dictionary = {"tag": "a", "body": {"type": "Noop"}}
         self.assertEqual(Command.from_dict(dictionary).as_dict(), dictionary)
 
     def test_repr(self):
         self.assertEqual(
-            repr(Command.from_dict({"tag": "a", "body": "Noop"})),
-            "Command({'tag': 'a', 'body': 'Noop'})",
+            repr(Command.from_dict({"tag": "a", "body": {"type": "Noop"}})),
+            r"Command({'tag': 'a', 'body': {'type': 'Noop'}})",
         )
 
 
 class TestAuthenticateData(unittest.TestCase):
     def test_from_dict(self):
         self.assertIsInstance(
-            AuthenticateData.from_dict({"Continue": list(b"Test")}),
+            AuthenticateData.from_dict({"type": "Continue", "data": list(b"Test")}),
             AuthenticateData,
         )
         self.assertIsInstance(
-            AuthenticateData.from_dict({"Cancel": {}}),
+            AuthenticateData.from_dict({"type": "Cancel"}),
             AuthenticateData,
         )
 
     def test_as_dict(self):
-        dictionary = {"Continue": list(b"Test")}
+        dictionary = {"type": "Continue", "data": list(b"Test")}
         self.assertEqual(AuthenticateData.from_dict(dictionary).as_dict(), dictionary)
 
-        dictionary = {"Cancel": {}}
+        dictionary = {"type": "Cancel"}
         self.assertEqual(AuthenticateData.from_dict(dictionary).as_dict(), dictionary)
 
     def test_repr(self):
         self.assertEqual(
-            repr(AuthenticateData.from_dict({"Continue": list(b"Test")})),
-            "AuthenticateData({'Continue': [84, 101, 115, 116]})",
+            repr(
+                AuthenticateData.from_dict({"type": "Continue", "data": list(b"Test")})
+            ),
+            r"AuthenticateData({'type': 'Continue', 'data': [84, 101, 115, 116]})",
         )
 
         self.assertEqual(
-            repr(AuthenticateData.from_dict({"Cancel": {}})),
-            "AuthenticateData({'Cancel': {}})",
+            repr(AuthenticateData.from_dict({"type": "Cancel"})),
+            r"AuthenticateData({'type': 'Cancel'})",
         )
 
 
 class TestResponse(unittest.TestCase):
     def test_from_dict(self):
         self.assertIsInstance(
-            Response.from_dict({"Data": {"Search": [1]}}),
+            Response.from_dict(
+                {"type": "Data", "data": {"type": "Search", "data": [1]}}
+            ),
             Response,
         )
 
     def test_as_dict(self):
-        dictionary = {"Data": {"Search": [1]}}
+        dictionary = {"type": "Data", "data": {"type": "Search", "data": [1]}}
         self.assertEqual(Response.from_dict(dictionary).as_dict(), dictionary)
 
     def test_repr(self):
         self.assertEqual(
-            repr(Response.from_dict({"Data": {"Search": [1]}})),
-            "Response({'Data': {'Search': [1]}})",
+            repr(
+                Response.from_dict(
+                    {"type": "Data", "data": {"type": "Search", "data": [1]}}
+                )
+            ),
+            r"Response({'type': 'Data', 'data': {'type': 'Search', 'data': [1]}})",
         )
 
 

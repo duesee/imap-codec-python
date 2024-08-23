@@ -13,7 +13,8 @@ class TestAuthenticateDataDecode(unittest.TestCase):
         buffer = b"VGVzdA==\r\n<remaining>"
         remaining, authenticate_data = AuthenticateDataCodec.decode(buffer)
         self.assertEqual(
-            authenticate_data, AuthenticateData.from_dict({"Continue": list(b"Test")})
+            authenticate_data,
+            AuthenticateData.from_dict({"type": "Continue", "data": list(b"Test")}),
         )
         self.assertEqual(remaining, b"<remaining>")
 
@@ -21,7 +22,8 @@ class TestAuthenticateDataDecode(unittest.TestCase):
         buffer = b"VGVzdA==\r\n"
         remaining, authenticate_data = AuthenticateDataCodec.decode(buffer)
         self.assertEqual(
-            authenticate_data, AuthenticateData.from_dict({"Continue": list(b"Test")})
+            authenticate_data,
+            AuthenticateData.from_dict({"type": "Continue", "data": list(b"Test")}),
         )
         self.assertEqual(remaining, b"")
 

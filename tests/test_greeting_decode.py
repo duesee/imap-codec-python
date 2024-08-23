@@ -9,7 +9,9 @@ class TestGreetingDecode(unittest.TestCase):
         remaining, greeting = GreetingCodec.decode(buffer)
         self.assertEqual(
             greeting,
-            Greeting.from_dict({"code": None, "kind": "Ok", "text": "Hello, World!"}),
+            Greeting.from_dict(
+                {"code": None, "kind": {"type": "Ok"}, "text": "Hello, World!"}
+            ),
         )
         self.assertEqual(remaining, b"<remaining>")
 
@@ -19,7 +21,11 @@ class TestGreetingDecode(unittest.TestCase):
         self.assertEqual(
             greeting,
             Greeting.from_dict(
-                {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
+                {
+                    "code": {"type": "Alert"},
+                    "kind": {"type": "Ok"},
+                    "text": "Hello, World!",
+                }
             ),
         )
         self.assertEqual(remaining, b"<remaining>")
@@ -29,7 +35,9 @@ class TestGreetingDecode(unittest.TestCase):
         remaining, greeting = GreetingCodec.decode(buffer)
         self.assertEqual(
             greeting,
-            Greeting.from_dict({"code": None, "kind": "Ok", "text": "Hello, World!"}),
+            Greeting.from_dict(
+                {"code": None, "kind": {"type": "Ok"}, "text": "Hello, World!"}
+            ),
         )
         self.assertEqual(remaining, b"")
 
