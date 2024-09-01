@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 class DecodeError(Exception):
     """
@@ -44,7 +44,7 @@ class LineFragment:
     Fragment of a line that is ready to be send.
     """
 
-    def __init__(self, data: bytes):
+    def __init__(self, data: bytes) -> None:
         """
         Create a line fragment from data bytes
 
@@ -65,7 +65,7 @@ class LiteralFragment:
     Fragment of a literal that may require an action before it should be send.
     """
 
-    def __init__(self, data: bytes, mode: LiteralMode):
+    def __init__(self, data: bytes, mode: LiteralMode) -> None:
         """
         Create a literal fragment from data bytes and literal mode
 
@@ -333,4 +333,247 @@ class IdleDoneCodec:
 
         :param idle_done: Given idle done
         :return: `Encoded` type holding fragments of encoded idle done
+        """
+
+class LineEnding:
+    """
+    The character sequence used for ending a line.
+
+    - Lf: The line ends with the character `\n`.
+    - CrLf: The line ends with the character sequence `\r\n`.
+    """
+
+    Lf: LineEnding
+    CrLf: LineEnding
+
+class LiteralAnnouncement:
+    """
+    When the `Fragmentizer` finds a line this is used to announce a literal following the line
+    """
+
+    def __init__(self, mode: LiteralMode, length: int) -> None:
+        """
+        Create a literal announcement from literal mode and a byte length
+
+        :param mode: Literal mode of the announced literal
+        :param length: Length of the announced literal in bytes
+        :raises TypeError: `mode` is invalid
+        :raises TypeError: `length` is not interger-like
+        """
+
+    @property
+    def mode(self) -> LiteralMode:
+        """
+        Get the literal mode of the announced literal
+
+        :return: Literal mode
+        """
+
+    @property
+    def length(self) -> int:
+        """
+        Get the length of the announced literal in bytes
+
+        :return: Length in bytes
+        """
+
+class LineFragmentInfo:
+    """
+    Describes a literal fragment of the current message found by `Fragmentizer.progress`.
+
+    The corresponding bytes can be retrieved via `Fragmentizer.fragment_bytes` until `Fragmentizer.is_message_complete`
+    returns true. After that the next call of `Fragmentizer.progress` will start the next message.
+    """
+
+    def __init__(
+        self,
+        start: int,
+        end: int,
+        announcement: Optional[LiteralAnnouncement],
+        ending: LineEnding,
+    ) -> None:
+        """
+        Create a line fragment info from start and end index, literal announcement and line ending
+
+        :param start: Inclusive start index relative to the current message
+        :param length: Exclusive end index relative to the current message
+        :param announcement: Whether the next fragment will be a literal
+        :param ending: The detected ending sequence for this line
+        :raises TypeError: `start` is not interger-like
+        :raises TypeError: `end` is not interger-like
+        :raises TypeError: `announcement` is invalid
+        :raises TypeError: `ending` is invalid
+        """
+
+    @property
+    def start(self) -> int:
+        """
+        Get the start index of the line fragment
+
+        :return: Inclusive start index relative to the current message
+        """
+
+    @property
+    def end(self) -> int:
+        """
+        Get the end index of the line fragment
+
+        :return: Exclusive end index relative to the current message
+        """
+
+    @property
+    def announcement(self) -> Optional[LiteralAnnouncement]:
+        """
+        Get the literal announcement of the line fragment
+
+        :return: Whether the next fragment will be a literal
+        """
+
+    @property
+    def ending(self) -> LineEnding:
+        """
+        Get the line ending of the line fragment
+
+        :return: The detected ending sequence for this line
+        """
+
+class LiteralFragmentInfo:
+    """
+    Describes a literal fragment of the current message found by `Fragmentizer.progress`
+
+    The corresponding bytes can be retrieved via `Fragmentizer.fragment_bytes` until `Fragmentizer.is_message_complete`
+    returns true. After that the next call of `Fragmentizer.progress` will start the next message.
+    """
+
+    def __init__(self, start: int, end: int) -> None:
+        """
+        Create a literal fragment info from start and end index
+
+        :param start: Inclusive start index relative to the current message
+        :param length: Exclusive end index relative to the current message
+        :raises TypeError: `start` is not interger-like
+        :raises TypeError: `end` is not interger-like
+        """
+
+    @property
+    def start(self) -> int:
+        """
+        Get the start index of the literal fragment
+
+        :return: Inclusive start index relative to the current message
+        """
+
+    @property
+    def end(self) -> int:
+        """
+        Get the end index of the literal fragment
+
+        :return: Exclusive end index relative to the current message
+        """
+
+class FragmentizerDecodeError(Exception):
+    """
+    TODO
+    """
+
+class FragmentizerDecodingRemainderError(FragmentizerDecodeError):
+    """
+    TODO
+    """
+
+class FragmentizerMessageTooLongError(FragmentizerDecodeError):
+    """
+    TODO
+    """
+
+class FragmentizerMessagePoisonedError(FragmentizerDecodeError):
+    """
+    TODO
+    """
+
+class Fragmentizer:
+    """
+    TODO
+    """
+
+    def __init__(self, max_message_size: Optional[int]) -> None:
+        """
+        TODO
+        """
+
+    def progress(self) -> Optional[Union[LineFragmentInfo, LiteralFragmentInfo]]:
+        """
+        TODO
+        """
+
+    def enqueue_bytes(self, data: bytes) -> None:
+        """
+        TODO
+        """
+
+    def fragment_bytes(
+        self, fragment_info: Union[LineFragmentInfo, LiteralFragmentInfo]
+    ) -> bytes:
+        """
+        TODO
+        """
+
+    def is_message_complete(self) -> bool:
+        """
+        TODO
+        """
+
+    def is_message_poisoned(self) -> bool:
+        """
+        TODO
+        """
+
+    def message_bytes(self) -> bytes:
+        """
+        TODO
+        """
+
+    def is_max_message_size_exceeded(self) -> bool:
+        """
+        TODO
+        """
+
+    def skip_message(self) -> None:
+        """
+        TODO
+        """
+
+    def poison_message(self) -> None:
+        """
+        TODO
+        """
+
+    def decode_tag(self) -> Optional[str]:
+        """
+        TODO
+        """
+
+    def decode_greeting(self) -> Greeting:
+        """
+        TODO
+        """
+
+    def decode_command(self) -> Command:
+        """
+        TODO
+        """
+
+    def decode_authenticate_data(self) -> AuthenticateData:
+        """
+        TODO
+        """
+
+    def decode_response(self) -> Response:
+        """
+        TODO
+        """
+
+    def decode_idle_done(self) -> IdleDone:
+        """
+        TODO
         """

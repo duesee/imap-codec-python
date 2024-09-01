@@ -57,11 +57,11 @@ class TestLiteralFragment(unittest.TestCase):
 
         mode = LiteralMode.Sync
         fragment = LiteralFragment(data, mode)
-        self.assertEqual(repr(fragment), f"LiteralFragment({data}, {mode})")
+        self.assertEqual(repr(fragment), f"LiteralFragment({data}, {mode!r})")
 
         mode = LiteralMode.NonSync
         fragment = LiteralFragment(data, mode)
-        self.assertEqual(repr(fragment), f"LiteralFragment({data}, {mode})")
+        self.assertEqual(repr(fragment), f"LiteralFragment({data}, {mode!r})")
 
     def test_str(self):
         data = b"\x01\x02\x03\x04"

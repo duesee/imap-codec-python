@@ -1,7 +1,12 @@
 mod encoded;
+mod fragmentizer;
 mod messages;
 
 use encoded::PyEncoded;
+use fragmentizer::{
+    FragmentizerDecodeError, FragmentizerDecodingRemainderError, FragmentizerMessagePoisonedError,
+    FragmentizerMessageTooLongError,
+};
 use imap_codec::{
     decode::{self, Decoder},
     encode::Encoder,
@@ -28,13 +33,9 @@ impl PyGreetingCodec {
     #[staticmethod]
     fn decode(bytes: Bound<PyBytes>) -> PyResult<(Bound<PyBytes>, PyGreeting)> {
         let py = bytes.py();
-        let (remaining, greeting) =
-            GreetingCodec::default()
-                .decode(bytes.as_bytes())
-                .map_err(|e| match e {
-                    decode::GreetingDecodeError::Incomplete => DecodeIncomplete::new_err(()),
-                    decode::GreetingDecodeError::Failed => DecodeFailed::new_err(()),
-                })?;
+        let (remaining, greeting) = GreetingCodec::default()
+            .decode(bytes.as_bytes())
+            .map_err(map_greeting_decode_error)?;
         Ok((
             PyBytes::new(py, remaining),
             PyGreeting(greeting.into_static()),
@@ -46,6 +47,13 @@ impl PyGreetingCodec {
     fn encode(greeting: &PyGreeting) -> PyEncoded {
         let encoded = GreetingCodec::default().encode(&greeting.0);
         PyEncoded(Some(encoded))
+    }
+}
+
+fn map_greeting_decode_error(error: decode::GreetingDecodeError) -> PyErr {
+    match error {
+        decode::GreetingDecodeError::Incomplete => DecodeIncomplete::new_err(()),
+        decode::GreetingDecodeError::Failed => DecodeFailed::new_err(()),
     }
 }
 
@@ -65,17 +73,7 @@ impl PyCommandCodec {
                 PyBytes::new(py, remaining),
                 PyCommand(command.into_static()),
             )),
-            Err(err) => Err(match err {
-                decode::CommandDecodeError::Incomplete => DecodeIncomplete::new_err(()),
-                decode::CommandDecodeError::LiteralFound { tag, length, mode } => {
-                    let dict = pyo3::types::PyDict::new(py);
-                    dict.set_item("tag", serde_pyobject::to_pyobject(py, &tag)?)?;
-                    dict.set_item("length", length)?;
-                    dict.set_item("mode", serde_pyobject::to_pyobject(py, &mode)?)?;
-                    DecodeLiteralFound::new_err(dict.unbind())
-                }
-                decode::CommandDecodeError::Failed => DecodeFailed::new_err(()),
-            }),
+            Err(error) => Err(map_command_decode_error(py, error)?),
         }
     }
 
@@ -84,6 +82,20 @@ impl PyCommandCodec {
     fn encode(command: &PyCommand) -> PyEncoded {
         let encoded = CommandCodec::default().encode(&command.0);
         PyEncoded(Some(encoded))
+    }
+}
+
+fn map_command_decode_error(py: Python, error: decode::CommandDecodeError) -> PyResult<PyErr> {
+    match error {
+        decode::CommandDecodeError::Incomplete => Ok(DecodeIncomplete::new_err(())),
+        decode::CommandDecodeError::LiteralFound { tag, length, mode } => {
+            let dict = pyo3::types::PyDict::new(py);
+            dict.set_item("tag", serde_pyobject::to_pyobject(py, &tag)?)?;
+            dict.set_item("length", length)?;
+            dict.set_item("mode", serde_pyobject::to_pyobject(py, &mode)?)?;
+            Ok(DecodeLiteralFound::new_err(dict.unbind()))
+        }
+        decode::CommandDecodeError::Failed => Ok(DecodeFailed::new_err(())),
     }
 }
 
@@ -98,16 +110,13 @@ impl PyAuthenticateDataCodec {
     #[staticmethod]
     fn decode(bytes: Bound<PyBytes>) -> PyResult<(Bound<PyBytes>, PyAuthenticateData)> {
         let py = bytes.py();
-        match AuthenticateDataCodec::default().decode(bytes.as_bytes()) {
-            Ok((remaining, authenticate_data)) => Ok((
-                PyBytes::new(py, remaining),
-                PyAuthenticateData(authenticate_data.into_static()),
-            )),
-            Err(err) => Err(match err {
-                decode::AuthenticateDataDecodeError::Incomplete => DecodeIncomplete::new_err(()),
-                decode::AuthenticateDataDecodeError::Failed => DecodeFailed::new_err(()),
-            }),
-        }
+        let (remaining, authenticate_data) = AuthenticateDataCodec::default()
+            .decode(bytes.as_bytes())
+            .map_err(map_authenticate_data_decode_error)?;
+        Ok((
+            PyBytes::new(py, remaining),
+            PyAuthenticateData(authenticate_data.into_static()),
+        ))
     }
 
     /// Encode authenticate data line into fragments
@@ -115,6 +124,13 @@ impl PyAuthenticateDataCodec {
     fn encode(authenticate_data: &PyAuthenticateData) -> PyEncoded {
         let encoded = AuthenticateDataCodec::default().encode(&authenticate_data.0);
         PyEncoded(Some(encoded))
+    }
+}
+
+fn map_authenticate_data_decode_error(error: decode::AuthenticateDataDecodeError) -> PyErr {
+    match error {
+        decode::AuthenticateDataDecodeError::Incomplete => DecodeIncomplete::new_err(()),
+        decode::AuthenticateDataDecodeError::Failed => DecodeFailed::new_err(()),
     }
 }
 
@@ -134,15 +150,7 @@ impl PyResponseCodec {
                 PyBytes::new(py, remaining),
                 PyResponse(response.into_static()),
             )),
-            Err(err) => Err(match err {
-                decode::ResponseDecodeError::Incomplete => DecodeIncomplete::new_err(()),
-                decode::ResponseDecodeError::LiteralFound { length } => {
-                    let dict = pyo3::types::PyDict::new(py);
-                    dict.set_item("length", length)?;
-                    DecodeLiteralFound::new_err(dict.unbind())
-                }
-                decode::ResponseDecodeError::Failed => DecodeFailed::new_err(()),
-            }),
+            Err(error) => Err(map_response_decode_error(py, error)?),
         }
     }
 
@@ -151,6 +159,18 @@ impl PyResponseCodec {
     fn encode(response: &PyResponse) -> PyEncoded {
         let encoded = ResponseCodec::default().encode(&response.0);
         PyEncoded(Some(encoded))
+    }
+}
+
+fn map_response_decode_error(py: Python, error: decode::ResponseDecodeError) -> PyResult<PyErr> {
+    match error {
+        decode::ResponseDecodeError::Incomplete => Ok(DecodeIncomplete::new_err(())),
+        decode::ResponseDecodeError::LiteralFound { length } => {
+            let dict = pyo3::types::PyDict::new(py);
+            dict.set_item("length", length)?;
+            Ok(DecodeLiteralFound::new_err(dict.unbind()))
+        }
+        decode::ResponseDecodeError::Failed => Ok(DecodeFailed::new_err(())),
     }
 }
 
@@ -165,16 +185,13 @@ impl PyIdleDoneCodec {
     #[staticmethod]
     fn decode(bytes: Bound<PyBytes>) -> PyResult<(Bound<PyBytes>, PyIdleDone)> {
         let py = bytes.py();
-        match IdleDoneCodec::default().decode(bytes.as_bytes()) {
-            Ok((remaining, idle_done)) => Ok((
-                PyBytes::new(py, remaining),
-                PyIdleDone(idle_done.into_static()),
-            )),
-            Err(err) => Err(match err {
-                decode::IdleDoneDecodeError::Incomplete => DecodeIncomplete::new_err(()),
-                decode::IdleDoneDecodeError::Failed => DecodeFailed::new_err(()),
-            }),
-        }
+        let (remaining, idle_done) = IdleDoneCodec::default()
+            .decode(bytes.as_bytes())
+            .map_err(map_idle_done_decode_error)?;
+        Ok((
+            PyBytes::new(py, remaining),
+            PyIdleDone(idle_done.into_static()),
+        ))
     }
 
     /// Encode idle done into fragments
@@ -182,6 +199,13 @@ impl PyIdleDoneCodec {
     fn encode(idle_done: &PyIdleDone) -> PyEncoded {
         let encoded = IdleDoneCodec::default().encode(&idle_done.0);
         PyEncoded(Some(encoded))
+    }
+}
+
+fn map_idle_done_decode_error(error: decode::IdleDoneDecodeError) -> PyErr {
+    match error {
+        decode::IdleDoneDecodeError::Incomplete => DecodeIncomplete::new_err(()),
+        decode::IdleDoneDecodeError::Failed => DecodeFailed::new_err(()),
     }
 }
 
@@ -195,9 +219,30 @@ fn imap_codec_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
         "DecodeLiteralFound",
         m.py().get_type::<DecodeLiteralFound>(),
     )?;
+    m.add(
+        "FragmentizerDecodeError",
+        m.py().get_type::<FragmentizerDecodeError>(),
+    )?;
+    m.add(
+        "FragmentizerDecodingRemainderError",
+        m.py().get_type::<FragmentizerDecodingRemainderError>(),
+    )?;
+    m.add(
+        "FragmentizerMessageTooLongError",
+        m.py().get_type::<FragmentizerMessageTooLongError>(),
+    )?;
+    m.add(
+        "FragmentizerMessagePoisonedError",
+        m.py().get_type::<FragmentizerMessagePoisonedError>(),
+    )?;
     m.add_class::<encoded::PyLiteralMode>()?;
     m.add_class::<encoded::PyLineFragment>()?;
     m.add_class::<encoded::PyLiteralFragment>()?;
+    m.add_class::<fragmentizer::PyLineEnding>()?;
+    m.add_class::<fragmentizer::PyLiteralAnnouncement>()?;
+    m.add_class::<fragmentizer::PyLineFragmentInfo>()?;
+    m.add_class::<fragmentizer::PyLiteralFragmentInfo>()?;
+    m.add_class::<fragmentizer::PyFragmentizer>()?;
     m.add_class::<PyEncoded>()?;
     m.add_class::<PyGreeting>()?;
     m.add_class::<PyGreetingCodec>()?;

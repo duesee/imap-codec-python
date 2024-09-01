@@ -18,6 +18,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.24.2"
+serde = "1.0.224"
 serde-pyobject = "0.6.2"
 
 [dependencies.imap-codec]
