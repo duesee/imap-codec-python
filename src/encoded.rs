@@ -12,11 +12,12 @@ pub(crate) enum PyLiteralMode {
     NonSync,
 }
 
+/// Only for local usage, `__str__` and `__repr__` for Python class `LiteralMode` are generated
 impl std::fmt::Display for PyLiteralMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PyLiteralMode::Sync => f.write_str("LiteralMode.Sync"),
-            PyLiteralMode::NonSync => f.write_str("LiteralMode.NonSync"),
+            Self::Sync => f.write_str("LiteralMode.Sync"),
+            Self::NonSync => f.write_str("LiteralMode.NonSync"),
         }
     }
 }
@@ -24,8 +25,17 @@ impl std::fmt::Display for PyLiteralMode {
 impl From<LiteralMode> for PyLiteralMode {
     fn from(value: LiteralMode) -> Self {
         match value {
-            LiteralMode::Sync => PyLiteralMode::Sync,
-            LiteralMode::NonSync => PyLiteralMode::NonSync,
+            LiteralMode::Sync => Self::Sync,
+            LiteralMode::NonSync => Self::NonSync,
+        }
+    }
+}
+
+impl From<PyLiteralMode> for LiteralMode {
+    fn from(value: PyLiteralMode) -> Self {
+        match value {
+            PyLiteralMode::Sync => Self::Sync,
+            PyLiteralMode::NonSync => Self::NonSync,
         }
     }
 }
@@ -94,12 +104,13 @@ impl PyLiteralFragment {
         self.mode
     }
 
-    /// String representation of the fragment, e.g. `(b'hello', 'Sync')`
+    /// String representation of the fragment, e.g. `(b'hello', LiteralMode.Sync)`
     pub(crate) fn __str__(&self, py: Python) -> String {
         format!("({}, {})", self.data(py), self.mode)
     }
 
-    /// Printable representation of the fragment, e.g. `LiteralFragment(b'hello', 'Sync')`
+    /// Printable representation of the fragment,
+    /// e.g. `LiteralFragment(b'hello', LiteralMode.Sync)`
     pub(crate) fn __repr__(&self, py: Python) -> String {
         format!("LiteralFragment{}", self.__str__(py))
     }
