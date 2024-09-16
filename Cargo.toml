@@ -17,7 +17,7 @@ name = "imap_codec"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.22.2"
+pyo3 = "0.22.3"
 serde-pyobject = "0.4.0"
 
 [dependencies.imap-codec]
