@@ -1,4 +1,5 @@
 mod encoded;
+mod fragmentizer;
 mod messages;
 
 use encoded::PyEncoded;
@@ -201,6 +202,11 @@ fn imap_codec_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<encoded::PyLiteralMode>()?;
     m.add_class::<encoded::PyLineFragment>()?;
     m.add_class::<encoded::PyLiteralFragment>()?;
+    m.add_class::<fragmentizer::PyLineEnding>()?;
+    m.add_class::<fragmentizer::PyLiteralAnnouncement>()?;
+    m.add_class::<fragmentizer::PyLineFragmentInfo>()?;
+    m.add_class::<fragmentizer::PyLiteralFragmentInfo>()?;
+    m.add_class::<fragmentizer::PyFragmentizer>()?;
     m.add_class::<PyEncoded>()?;
     m.add_class::<PyGreeting>()?;
     m.add_class::<PyGreetingCodec>()?;
