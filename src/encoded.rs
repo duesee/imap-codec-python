@@ -24,8 +24,17 @@ impl std::fmt::Display for PyLiteralMode {
 impl From<LiteralMode> for PyLiteralMode {
     fn from(value: LiteralMode) -> Self {
         match value {
-            LiteralMode::Sync => PyLiteralMode::Sync,
-            LiteralMode::NonSync => PyLiteralMode::NonSync,
+            LiteralMode::Sync => Self::Sync,
+            LiteralMode::NonSync => Self::NonSync,
+        }
+    }
+}
+
+impl From<PyLiteralMode> for LiteralMode {
+    fn from(value: PyLiteralMode) -> Self {
+        match value {
+            PyLiteralMode::Sync => Self::Sync,
+            PyLiteralMode::NonSync => Self::NonSync,
         }
     }
 }
