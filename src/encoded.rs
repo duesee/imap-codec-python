@@ -50,7 +50,7 @@ impl PyLineFragment {
     /// Retrieve the data from the fragment as Python `bytes`
     #[getter]
     pub(crate) fn data<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
-        PyBytes::new_bound(py, self.data.as_slice())
+        PyBytes::new(py, self.data.as_slice())
     }
 
     /// String representation of the fragment, e.g. `b'hello'`
@@ -85,7 +85,7 @@ impl PyLiteralFragment {
     /// Retrieve the data of the fragment as Python `bytes`
     #[getter]
     pub(crate) fn data<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
-        PyBytes::new_bound(py, self.data.as_slice())
+        PyBytes::new(py, self.data.as_slice())
     }
 
     /// Retrieve the mode of the fragment
@@ -128,23 +128,24 @@ impl PyEncoded {
 
         // Return instance of `PyLineFragment` or `PyLiteralFragment` as a generic `PyObject`.
         Ok(Some(match fragment {
-            Fragment::Line { data } => {
-                Bound::new(slf.py(), PyLineFragment::new(data))?.to_object(slf.py())
-            }
+            Fragment::Line { data } => Bound::new(slf.py(), PyLineFragment::new(data))?
+                .into_pyobject(slf.py())?
+                .into(),
             Fragment::Literal { data, mode } => {
                 Bound::new(slf.py(), PyLiteralFragment::try_new(data, mode.into())?)?
-                    .to_object(slf.py())
+                    .into_pyobject(slf.py())?
+                    .into()
             }
         }))
     }
 
     /// Dump remaining fragment data
-    pub(crate) fn dump(mut slf: PyRefMut<'_, Self>) -> PyResult<Bound<PyBytes>> {
+    pub(crate) fn dump(mut slf: PyRefMut<'_, Self>) -> PyResult<Bound<'_, PyBytes>> {
         let encoded = slf.0.take();
         let dump = match encoded {
             Some(encoded) => encoded.dump(),
             None => Vec::new(),
         };
-        Ok(PyBytes::new_bound(slf.py(), &dump))
+        Ok(PyBytes::new(slf.py(), &dump))
     }
 }
