@@ -74,8 +74,8 @@ impl PyAuthenticateData {
         Ok(if object.is_instance_of::<PyString>() {
             // Unit variants are deserialized into strings by `to_pyobject`, create a
             // dictionary around it for a consistent interface: `{ "Variant": {} }`
-            let dict = PyDict::new_bound(py);
-            dict.set_item(object, PyDict::new_bound(py))?;
+            let dict = PyDict::new(py);
+            dict.set_item(object, PyDict::new(py))?;
             dict
         } else {
             object.downcast_into()?
