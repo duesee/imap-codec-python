@@ -473,107 +473,113 @@ class LiteralFragmentInfo:
 
 class FragmentizerDecodeError(Exception):
     """
-    TODO
+    The decoder failed decoding the message.
     """
 
 class FragmentizerDecodingRemainderError(FragmentizerDecodeError):
     """
-    TODO
+    Not all bytes of the message were used when decoding the message.
     """
 
 class FragmentizerMessageTooLongError(FragmentizerDecodeError):
     """
-    TODO
+    Max message size was exceeded and bytes were dropped.
     """
 
 class FragmentizerMessagePoisonedError(FragmentizerDecodeError):
     """
-    TODO
+    The message was explicitly poisoned to prevent decoding.
     """
 
 class Fragmentizer:
     """
-    TODO
+    Safely splits IMAP bytes into line and literal fragments.
     """
 
     def __init__(self, max_message_size: Optional[int]) -> None:
         """
-        TODO
+        Create `Fragmentizer` with maximum message size.
         """
 
     def progress(self) -> Optional[Union[LineFragmentInfo, LiteralFragmentInfo]]:
         """
-        TODO
+        Continue parsing current message until next fragment is detected.
         """
 
     def enqueue_bytes(self, data: bytes) -> None:
         """
-        TODO
+        Enqueues more bytes.
         """
 
     def fragment_bytes(
         self, fragment_info: Union[LineFragmentInfo, LiteralFragmentInfo]
     ) -> bytes:
         """
-        TODO
+        Return bytes for fragment of current message.
         """
 
     def is_message_complete(self) -> bool:
         """
-        TODO
+        Return whether current message was fully parsed.
         """
 
     def is_message_poisoned(self) -> bool:
         """
-        TODO
+        Return whether current message was explicitly poisoned to prevent decoding.
         """
 
     def message_bytes(self) -> bytes:
         """
-        TODO
+        Return bytes of current message.
         """
 
     def is_max_message_size_exceeded(self) -> bool:
         """
-        TODO
+        Return whether size limit is exceeded for current message.
         """
 
     def skip_message(self) -> None:
         """
-        TODO
+        Skip current message and start next message immediately.
+
+        Warning: This method might be dangerous. If client and server don't
+        agree at which point a message is skipped, then the client or server might
+        treat untrusted bytes (e.g. literal bytes) as IMAP messages. Currently the
+        only valid use-case is a server that rejects synchronizing literals from the
+        client. Otherwise consider using `poison_message`.
         """
 
     def poison_message(self) -> None:
         """
-        TODO
+        Poison current message to prevent its decoding.
         """
 
     def decode_tag(self) -> Optional[str]:
         """
-        TODO
+        Try to decode tag for current message.
         """
 
     def decode_greeting(self) -> Greeting:
         """
-        TODO
+        Try to decode current message as "greeting".
         """
 
     def decode_command(self) -> Command:
         """
-        TODO
+        Try to decode current message as "command".
         """
 
     def decode_authenticate_data(self) -> AuthenticateData:
         """
-        TODO
+        Try to decode current message as "authenticate data".
         """
 
     def decode_response(self) -> Response:
         """
-        TODO
+        Try to decode current message as "response".
         """
 
     def decode_idle_done(self) -> IdleDone:
         """
-        TODO
+        Try to decode current message as "idle done".
         """
