@@ -12,8 +12,8 @@ class Role(Enum):
     Server = 2
 
 
-def read_more(buffer: bytearray, role: Role):
-    if not buffer:
+def read_more(role: Role, continuation: bool):
+    if not continuation:
         prompt = "C: " if role == Role.Client else "S: "
     else:
         prompt = ".. "
@@ -25,7 +25,7 @@ def read_more(buffer: bytearray, role: Role):
         print("Exiting.")
         sys.exit(0)
 
-    buffer += line.encode()
+    return line
 
 
 def read_line(prompt: str, role: Role) -> Optional[str]:
