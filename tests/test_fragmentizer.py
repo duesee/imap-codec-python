@@ -314,7 +314,9 @@ class TestFragmentizer(unittest.TestCase):
 
         fragmentizer.progress()
         command = fragmentizer.decode_command()
-        self.assertEqual(command, Command.from_dict({"tag": "A1", "body": "Noop"}))
+        self.assertEqual(
+            command, Command.from_dict({"tag": "A1", "body": {"type": "Noop"}})
+        )
 
         fragmentizer.enqueue_bytes(b"foo\r\n")
 
@@ -334,7 +336,9 @@ class TestFragmentizer(unittest.TestCase):
         authenticate_data = fragmentizer.decode_authenticate_data()
         self.assertEqual(
             authenticate_data,
-            AuthenticateData.from_dict({"Continue": list(b"test\x00test\x00test")}),
+            AuthenticateData.from_dict(
+                {"type": "Continue", "content": list(b"test\x00test\x00test")}
+            ),
         )
 
         fragmentizer.enqueue_bytes(b"foo\r\n")
@@ -357,12 +361,14 @@ class TestFragmentizer(unittest.TestCase):
             response,
             Response.from_dict(
                 {
-                    "Status": {
-                        "Tagged": {
+                    "type": "Status",
+                    "content": {
+                        "type": "Tagged",
+                        "content": {
                             "tag": "A1",
                             "body": {"kind": "Ok", "code": None, "text": "..."},
-                        }
-                    }
+                        },
+                    },
                 }
             ),
         )

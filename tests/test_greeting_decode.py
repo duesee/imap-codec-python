@@ -19,7 +19,7 @@ class TestGreetingDecode(unittest.TestCase):
         self.assertEqual(
             greeting,
             Greeting.from_dict(
-                {"code": "Alert", "kind": "Ok", "text": "Hello, World!"}
+                {"code": {"type": "Alert"}, "kind": "Ok", "text": "Hello, World!"}
             ),
         )
         self.assertEqual(remaining, b"<remaining>")
