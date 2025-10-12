@@ -89,12 +89,13 @@ if __name__ == "__main__":
             try:
                 out = fragmentizer.decode_command()
                 print(out)
-                if "Authenticate" in out.as_dict()["body"]:
+                out_dict = out.as_dict()
+                if out_dict["body"]["type"] == "Authenticate":
                     # Request another SASL round ...
                     print(f"S: {COLOR_SERVER}+ {RESET}")
                     # ... and proceed with authenticate data.
-                    state = StateAuthenticate(tag=out.as_dict()["tag"])
-                elif out.as_dict()["body"] == "Idle":
+                    state = StateAuthenticate(tag=out_dict["tag"])
+                elif out_dict["body"]["type"] == "Idle":
                     # Accept the idle ...
                     print(f"S: {COLOR_SERVER}+ ...{RESET}")
                     # ... and proceed with idle done.

@@ -1,6 +1,6 @@
 [sources]
 unknown-registry = "deny"
-# unknown-git = "deny"
+unknown-git = "deny"
 
 [licenses]
 allow = [
