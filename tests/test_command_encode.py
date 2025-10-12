@@ -12,14 +12,14 @@ from imap_codec import (
 
 class TestCommandEncode(unittest.TestCase):
     def test_simple_command(self):
-        command = Command.from_dict({"tag": "a", "body": "Noop"})
+        command = Command.from_dict({"tag": "a", "body": {"type": "Noop"}})
         encoded = CommandCodec.encode(command)
         self.assertIsInstance(encoded, Encoded)
         fragments = list(encoded)
         self.assertEqual(fragments, [LineFragment(b"a NOOP\r\n")])
 
     def test_simple_command_dump(self):
-        command = Command.from_dict({"tag": "a", "body": "Noop"})
+        command = Command.from_dict({"tag": "a", "body": {"type": "Noop"}})
         encoded = CommandCodec.encode(command)
         self.assertIsInstance(encoded, Encoded)
         self.assertEqual(encoded.dump(), b"a NOOP\r\n")
@@ -28,14 +28,17 @@ class TestCommandEncode(unittest.TestCase):
         {
             "tag": "A",
             "body": {
-                "Login": {
-                    "username": {"Atom": "alice"},
+                "type": "Login",
+                "content": {
+                    "username": {"type": "Atom", "content": "alice"},
                     "password": {
-                        "String": {
-                            "Literal": {"data": list(b"\xca\xfe"), "mode": "Sync"}
-                        }
+                        "type": "String",
+                        "content": {
+                            "type": "Literal",
+                            "content": {"data": list(b"\xca\xfe"), "mode": "Sync"},
+                        },
                     },
-                }
+                },
             },
         }
     )
