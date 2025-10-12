@@ -64,9 +64,9 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "imap-codec"
-version = "2.0.0-alpha.5"
+version = "2.0.0-alpha.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f584310addd1fb8fe288e4f07c279fec9264ac1ea68b018241ae4dcd4fb28557"
+checksum = "d4087870a6597c456aa5860034b92139609b0e4a4102bc9f5c8c69343c341d0b"
 dependencies = [
  "abnf-core",
  "base64",
@@ -88,9 +88,9 @@ dependencies = [
 
 [[package]]
 name = "imap-types"
-version = "2.0.0-alpha.4"
+version = "2.0.0-alpha.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d601d81f11962a649acc2d535ad7311770e30364b4a978a762de291829c9ef53"
+checksum = "1b49c2dbf4dad892189b1b0bf407da23f3a6c681b2be2fdca555a53ca9f4d982"
 dependencies = [
  "base64",
  "bounded-static",
@@ -310,18 +310,18 @@ checksum = "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
 
 [[package]]
 name = "thiserror"
-version = "1.0.69"
+version = "2.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
+checksum = "f63587ca0f12b72a0600bcba1d40081f830876000bb46dd2337a3051618f4fc8"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.69"
+version = "2.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
+checksum = "3ff15c8ecd7de3849db632e14d18d2571fa09dfc5ed93479bc4485c7a517c913"
 dependencies = [
  "proc-macro2",
  "quote",
