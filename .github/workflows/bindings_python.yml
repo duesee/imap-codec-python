@@ -246,7 +246,7 @@ jobs:
             echo "Error: Release version in Git tag (${tag_version}) does not match package version in Cargo.toml (${crate_version})."
             exit 1
           fi
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         env:
