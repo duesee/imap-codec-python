@@ -24,7 +24,7 @@ impl PyGreeting {
 
     /// Serialize greeting into dictionary
     pub(crate) fn as_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        Ok(serde_pyobject::to_pyobject(py, &self.0)?.downcast_into()?)
+        Ok(serde_pyobject::to_pyobject(py, &self.0)?.cast_into()?)
     }
 
     pub(crate) fn __repr__(&self, py: Python) -> PyResult<String> {
@@ -47,7 +47,7 @@ impl PyCommand {
 
     /// Serialize command into dictionary
     pub(crate) fn as_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        Ok(serde_pyobject::to_pyobject(py, &self.0)?.downcast_into()?)
+        Ok(serde_pyobject::to_pyobject(py, &self.0)?.cast_into()?)
     }
 
     pub(crate) fn __repr__(&self, py: Python) -> PyResult<String> {
@@ -78,7 +78,7 @@ impl PyAuthenticateData {
             dict.set_item(object, PyDict::new(py))?;
             dict
         } else {
-            object.downcast_into()?
+            object.cast_into()?
         })
     }
 
@@ -102,7 +102,7 @@ impl PyResponse {
 
     /// Serialize response into dictionary
     pub(crate) fn as_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        Ok(serde_pyobject::to_pyobject(py, &self.0)?.downcast_into()?)
+        Ok(serde_pyobject::to_pyobject(py, &self.0)?.cast_into()?)
     }
 
     pub(crate) fn __repr__(&self, py: Python) -> PyResult<String> {
