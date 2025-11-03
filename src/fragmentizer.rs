@@ -294,7 +294,7 @@ impl PyFragmentizer {
     }
 
     /// Progress the fragmentizer and return the next detected fragment
-    fn progress(&mut self, py: Python) -> PyResult<Option<PyObject>> {
+    fn progress(&mut self, py: Python) -> PyResult<Option<Py<PyAny>>> {
         let Some(fragment_info) = self.0.progress() else {
             return Ok(None);
         };
@@ -339,9 +339,9 @@ impl PyFragmentizer {
     ) -> PyResult<Bound<'a, PyBytes>> {
         let py = slf.py();
         let fragment_info: FragmentInfo =
-            if let Ok(info) = fragment_info.downcast::<PyLineFragmentInfo>() {
+            if let Ok(info) = fragment_info.cast::<PyLineFragmentInfo>() {
                 (*info.borrow()).into()
-            } else if let Ok(info) = fragment_info.downcast::<PyLiteralFragmentInfo>() {
+            } else if let Ok(info) = fragment_info.cast::<PyLiteralFragmentInfo>() {
                 (*info.borrow()).into()
             } else {
                 return Err(PyErr::new::<PyTypeError, _>(

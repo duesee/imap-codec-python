@@ -131,7 +131,7 @@ impl PyEncoded {
     }
 
     /// Return next fragment
-    pub(crate) fn __next__(mut slf: PyRefMut<'_, Self>) -> PyResult<Option<PyObject>> {
+    pub(crate) fn __next__(mut slf: PyRefMut<'_, Self>) -> PyResult<Option<Py<PyAny>>> {
         // Try to get next `Fragment` from `Encoded` iterator
         let Some(fragment) = slf.0.as_mut().and_then(|encoded| encoded.next()) else {
             return Ok(None);
